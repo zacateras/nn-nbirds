@@ -37,10 +37,29 @@ def guid_from_filename(filename):
         raise Exception('Provided filename %s is too short. Expected at least 32 characters.' % filename)
     
     return '%s-%s-%s-%s-%s' % (filename[0:8], filename[8:12], filename[12:16], filename[16:20], filename[20:32])
-            
-def apply_bounding_box(in_path, out_path, ds_meta, class_subdirs=True):
+
+def bounding_box(guid, img, ds_meta):
     bbs = ds_meta['bounding_boxes']
+    bb = bbs[bbs['image_guid'] == guid]
+            
+    x = int(bb['x'])
+    xh = int(bb['xh'])
+    y = int(bb['y'])
+    yh = int(bb['yh'])
     
+    return img[y:y+yh, x:x+xh]
+
+def resize(guid, img, ds_meta):
+    return cv2.resize(img, (150, 150))
+
+def greyscale(guid, img, ds_meta):
+    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+def gabor_filter(guid, img, ds_meta):
+    g_kernel = cv2.getGaborKernel((15, 15), 0.66, np.pi/8, 1.3, 0.5, 0, ktype=cv2.CV_32F)
+    return cv2.filter2D(img, cv2.CV_8UC3, g_kernel)
+
+def apply(transform, in_path, out_path, ds_meta, class_subdirs=True):
     subdirs = [''] if not class_subdirs else os.listdir(in_path)
     
     for subdir in subdirs:
@@ -51,30 +70,8 @@ def apply_bounding_box(in_path, out_path, ds_meta, class_subdirs=True):
         for item in os.listdir(in_subdir_p):
             guid = guid_from_filename(item)
             img = cv2.imread(os.path.join(*(in_subdir_p, item)))
-            bb = bbs[bbs['image_guid'] == guid]
-            
-            x = int(bb['x'])
-            xh = int(bb['xh'])
-            y = int(bb['y'])
-            yh = int(bb['yh'])
-            
-            img_c = img[y:y+yh, x:x+xh]
-            cv2.imwrite(os.path.join(*(out_subdir_p, item)), img_c)
-
-def apply_gabor_filter(in_path, out_path, class_subdirs=True):
-    g_kernel = cv2.getGaborKernel((21, 21), 8.0, np.pi/4, 10.0, 0.5, 0, ktype=cv2.CV_32F)
-    
-    subdirs = [''] if not class_subdirs else os.listdir(in_path)
-    
-    for subdir in subdirs:
-        in_subdir_p = os.path.join(*(in_path, subdir))
-        out_subdir_p = os.path.join(*(out_path, subdir))
-        os.makedirs(out_subdir_p, exist_ok=True)
-        
-        for item in os.listdir(in_subdir_p):
-            img = cv2.imread(os.path.join(*(in_subdir_p, item)))
-            img_f = cv2.filter2D(img, cv2.CV_8UC3, g_kernel)
-            cv2.imwrite(os.path.join(*(out_subdir_p, item)), img_f)
+            img_o = transform(guid, img, ds_meta)
+            cv2.imwrite(os.path.join(*(out_subdir_p, item)), img_o)
 
 def apply_tvt_split(path, train=0.7, test=0.3, validation=0.0, class_subdirs=True):
     dir_train_p = '%s_train' % path
