@@ -57,7 +57,13 @@ def greyscale(guid, img, ds_meta):
 
 def gabor_filter(guid, img, ds_meta):
     g_kernel = cv2.getGaborKernel((15, 15), 0.66, np.pi/8, 1.3, 0.5, 0, ktype=cv2.CV_32F)
-    return cv2.filter2D(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), cv2.CV_8UC3, g_kernel)
+
+    return cv2.normalize(cv2.filter2D(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), cv2.CV_8UC3, g_kernel),
+                         None,
+                         alpha=0,
+                         beta=255,
+                         norm_type=cv2.NORM_MINMAX,
+                         dtype=cv2.CV_32F)
 
 def apply(transform, in_path, out_path, ds_meta, class_subdirs=True):
     subdirs = [''] if not class_subdirs else os.listdir(in_path)
