@@ -38,7 +38,7 @@ def guid_from_filename(filename):
     
     return '%s-%s-%s-%s-%s' % (filename[0:8], filename[8:12], filename[12:16], filename[16:20], filename[20:32])
 
-def bounding_box(guid, img, ds_meta):
+def bounding_box(img, guid, ds_meta):
     bbs = ds_meta['bounding_boxes']
     bb = bbs[bbs['image_guid'] == guid]
             
@@ -48,22 +48,6 @@ def bounding_box(guid, img, ds_meta):
     yh = int(bb['yh'])
     
     return img[y:y+yh, x:x+xh]
-
-def resize(guid, img, ds_meta):
-    return cv2.resize(img, (150, 150))
-
-def greyscale(guid, img, ds_meta):
-    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-def gabor_filter(guid, img, ds_meta):
-    g_kernel = cv2.getGaborKernel((15, 15), 0.66, np.pi/8, 1.3, 0.5, 0, ktype=cv2.CV_32F)
-
-    return cv2.normalize(cv2.filter2D(img, cv2.CV_8UC3, g_kernel),
-                         None,
-                         alpha=0,
-                         beta=255,
-                         norm_type=cv2.NORM_MINMAX,
-                         dtype=cv2.CV_32F)
 
 def apply(transform, in_path, out_path, ds_meta, class_subdirs=True):
     subdirs = [''] if not class_subdirs else os.listdir(in_path)
@@ -76,7 +60,7 @@ def apply(transform, in_path, out_path, ds_meta, class_subdirs=True):
         for item in os.listdir(in_subdir_p):
             guid = guid_from_filename(item)
             img = cv2.imread(os.path.join(*(in_subdir_p, item)))
-            img_o = transform(guid, img, ds_meta)
+            img_o = transform(img, guid, ds_meta)
             cv2.imwrite(os.path.join(*(out_subdir_p, item)), img_o)
 
 def apply_tvt_split(path, train=0.7, test=0.3, validation=0.0, class_subdirs=True):
@@ -131,10 +115,3 @@ def apply_tvt_split(path, train=0.7, test=0.3, validation=0.0, class_subdirs=Tru
             src = os.path.join(subdir_p, subdir_list_test_item)
             dest = os.path.join(subdir_test_p, subdir_list_test_item)
             shutil.copyfile(src, dest)
-
-
-if __name__ == '__main__':
-    ds_meta = build_ds_meta()
-    apply(bounding_box, 'data/SET_A', 'data/SET_A_BB', ds_meta)
-    apply(lambda guid, img, dsm: gabor_filter(guid, greyscale(guid, resize(guid, img, dsm), dsm), dsm), 'data/SET_A_BB', 'data/SET_A_BB_GF', ds_meta)
-    apply_tvt_split('data/SET_A_BB_GF')
