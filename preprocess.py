@@ -57,7 +57,7 @@ def greyscale(guid, img, ds_meta):
 
 def gabor_filter(guid, img, ds_meta):
     g_kernel = cv2.getGaborKernel((15, 15), 0.66, np.pi/8, 1.3, 0.5, 0, ktype=cv2.CV_32F)
-    return cv2.filter2D(img, cv2.CV_8UC3, g_kernel)
+    return cv2.filter2D(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), cv2.CV_8UC3, g_kernel)
 
 def apply(transform, in_path, out_path, ds_meta, class_subdirs=True):
     subdirs = [''] if not class_subdirs else os.listdir(in_path)
@@ -125,3 +125,7 @@ def apply_tvt_split(path, train=0.7, test=0.3, validation=0.0, class_subdirs=Tru
             src = os.path.join(subdir_p, subdir_list_test_item)
             dest = os.path.join(subdir_test_p, subdir_list_test_item)
             shutil.copyfile(src, dest)
+
+
+if __name__ == '__main__':
+    apply(gabor_filter,'data/test', 'data/test_gb', ds_meta='', class_subdirs=False)
