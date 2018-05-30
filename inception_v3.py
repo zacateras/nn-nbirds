@@ -67,4 +67,4 @@ model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['ca
 
 checkpointer = keras.callbacks.ModelCheckpoint(filepath='weights-{epoch:02d}.hdf5', verbose=1)
 
-model.fit_generator(train_generator, validation_data=validation_generator, epochs=5, callbacks=[checkpointer])
+model.fit_generator(train_generator, validation_data=validation_generator, epochs=15, callbacks=[checkpointer])
