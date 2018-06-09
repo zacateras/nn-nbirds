@@ -63,6 +63,8 @@ def apply(transform, in_path, out_path, ds_meta, class_subdirs=True):
     for subdir in subdirs:
         in_subdir_p = os.path.join(*(in_path, subdir))
         out_subdir_p = os.path.join(*(out_path, subdir))
+        if os.path.exists(out_subdir_p) and os.path.isdir(out_subdir_p):
+            shutil.rmtree(out_subdir_p)
         os.makedirs(out_subdir_p)
         
         for item in os.listdir(in_subdir_p):
@@ -101,6 +103,8 @@ def apply_tvt_split(path, train=0.7, test=0.3, validation=0.0, class_subdirs=Tru
         
         # prepare train part
         subdir_train_p = os.path.join(*(dir_train_p, subdir))
+        if os.path.exists(subdir_train_p) and os.path.isdir(subdir_train_p):
+            shutil.rmtree(subdir_train_p)
         os.makedirs(subdir_train_p)
         for subdir_list_train_item in subdir_list_train:
             src = os.path.join(subdir_p, subdir_list_train_item)
@@ -110,6 +114,8 @@ def apply_tvt_split(path, train=0.7, test=0.3, validation=0.0, class_subdirs=Tru
         # prepare validation part
         if len(subdir_list_validation) > 0:
             subdir_validation_p = os.path.join(*(dir_validation_p, subdir))
+            if os.path.exists(subdir_validation_p) and os.path.isdir(subdir_validation_p):
+                shutil.rmtree(subdir_validation_p)
             os.makedirs(subdir_validation_p)
             for subdir_list_validation_item in subdir_list_validation:
                 src = os.path.join(subdir_p, subdir_list_validation_item)
@@ -118,6 +124,8 @@ def apply_tvt_split(path, train=0.7, test=0.3, validation=0.0, class_subdirs=Tru
             
         # prepare test part
         subdir_test_p = os.path.join(*(dir_test_p, subdir))
+        if os.path.exists(subdir_test_p) and os.path.isdir(subdir_test_p):
+            shutil.rmtree(subdir_test_p)
         os.makedirs(subdir_test_p)
         for subdir_list_test_item in subdir_list_test:
             src = os.path.join(subdir_p, subdir_list_test_item)
