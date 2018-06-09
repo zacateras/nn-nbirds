@@ -1,14 +1,5 @@
 #!/bin/bash
 
-if [ -d "data" ]; then rm -rf "data"; fi
-mkdir "data"
-
-wget "https://www.dropbox.com/s/fi2g3zxsn0pdmn1/nbirds.zip" -O $PWD"/data/nbirds.zip"
-unzip -q "data/nbirds.zip" -d "data"
-rm "data/nbirds.zip"
-
-## Fixed tvt split
-
 copy_from_list() {
     list="$1"
     src="$2"
@@ -21,7 +12,7 @@ copy_from_list() {
 }
 
 dataset_dir="$PWD/data/SET_A"
-lists_dir="$PWD/dataset_split"
+lists_dir="$PWD/data_tools"
 
 for subset in train test validation; do
     copy_from_list "$lists_dir/$subset.txt" \

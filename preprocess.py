@@ -49,6 +49,14 @@ def bounding_box(img, guid, ds_meta):
     
     return img[y:y+yh, x:x+xh]
 
+class Resize():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def func(self, img, guid, ds_meta):
+        return cv2.resize(img, (self.x, self.y))
+
 def apply(transform, in_path, out_path, ds_meta, class_subdirs=True):
     subdirs = [''] if not class_subdirs else os.listdir(in_path)
     
@@ -115,3 +123,20 @@ def apply_tvt_split(path, train=0.7, test=0.3, validation=0.0, class_subdirs=Tru
             src = os.path.join(subdir_p, subdir_list_test_item)
             dest = os.path.join(subdir_test_p, subdir_list_test_item)
             shutil.copyfile(src, dest)
+
+def preprocess(width=64, height=64, clip=True):
+    ds_meta = build_ds_meta()
+
+    # BB + resize     => SET_A_RES_train
+    #                    SET_A_RES_validation
+    #                    SET_A_RES_test
+
+    apply(bounding_box, 'data/SET_A_train', 'data/SET_A_BB_train', ds_meta)
+    apply(bounding_box, 'data/SET_A_validation', 'data/SET_A_BB_validation', ds_meta)
+    apply(bounding_box, 'data/SET_A_test', 'data/SET_A_BB_test', ds_meta)
+
+    apply(Resize(width, height).func, 'data/SET_A_BB_train', 'data/SET_A_RES_train', ds_meta)
+    apply(Resize(width, height).func, 'data/SET_A_BB_validation', 'data/SET_A_RES_validation', ds_meta)
+    apply(Resize(width, height).func, 'data/SET_A_BB_test', 'data/SET_A_RES_test', ds_meta)
+
+    return ds_meta
