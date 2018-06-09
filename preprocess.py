@@ -124,19 +124,27 @@ def apply_tvt_split(path, train=0.7, test=0.3, validation=0.0, class_subdirs=Tru
             dest = os.path.join(subdir_test_p, subdir_list_test_item)
             shutil.copyfile(src, dest)
 
-def preprocess(width=64, height=64, clip=True):
+def clip():
     ds_meta = build_ds_meta()
 
-    # BB + resize     => SET_A_RES_train
-    #                    SET_A_RES_validation
-    #                    SET_A_RES_test
-
+    print('Clipping train set...')
     apply(bounding_box, 'data/SET_A_train', 'data/SET_A_BB_train', ds_meta)
+
+    print('Clipping validation set...')
     apply(bounding_box, 'data/SET_A_validation', 'data/SET_A_BB_validation', ds_meta)
+
+    print('Clipping test set...')
     apply(bounding_box, 'data/SET_A_test', 'data/SET_A_BB_test', ds_meta)
 
-    apply(Resize(width, height).func, 'data/SET_A_BB_train', 'data/SET_A_RES_train', ds_meta)
-    apply(Resize(width, height).func, 'data/SET_A_BB_validation', 'data/SET_A_RES_validation', ds_meta)
-    apply(Resize(width, height).func, 'data/SET_A_BB_test', 'data/SET_A_RES_test', ds_meta)
 
-    return ds_meta
+def resize(width=64, height=64):
+    ds_meta = build_ds_meta()
+
+    print('Resizing train set...')
+    apply(Resize(width, height).func, 'data/SET_A_BB_train', 'data/SET_A_RES_train', ds_meta)
+
+    print('Resizing validation set...')
+    apply(Resize(width, height).func, 'data/SET_A_BB_validation', 'data/SET_A_RES_validation', ds_meta)
+
+    print('Resizing test set...')
+    apply(Resize(width, height).func, 'data/SET_A_BB_test', 'data/SET_A_RES_test', ds_meta)
