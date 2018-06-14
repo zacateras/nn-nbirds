@@ -146,9 +146,9 @@ if __name__ == '__main__':
 
     exp_testing_accuracy = []
     exp_training_accuracy = []
-    exp_range = np.arange(0.1, 100, 3)
+    exp_range = np.arange(0.1, 8, 0.2)
     for c in exp_range:
-        svm_classifier = svm.SVC(C=c, kernel=Exponential(), degree=2, decision_function_shape='ovr')
+        svm_classifier = svm.SVC(C=c, kernel=Exponential(sigma=7), degree=2, decision_function_shape='ovr')
         tsa, tra = evaluate_svm(test_data, train_data, svm_classifier, 'log.tsv')
         exp_testing_accuracy.append(tsa)
         exp_training_accuracy.append(tra)
@@ -164,7 +164,7 @@ if __name__ == '__main__':
 
     poly_testing_accuracy = []
     poly_training_accuracy = []
-    poly_range = np.arange(0.1, 100, 3)
+    poly_range = np.arange(0.1, 10, 0.5)
     for c in poly_range:
             svm_classifier = svm.SVC(C=c, kernel='poly', degree=2, decision_function_shape='ovr')
             tsa, tra = evaluate_svm(test_data, train_data, svm_classifier, 'log.tsv')
